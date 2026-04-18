@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نموذج استقبال مريض الحجامة</title>
+    <!-- Google Fonts for Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 for beautiful popups -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Libraries -->
+    <!-- html2pdf for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body class="bg-mesh">
+    
+    <div class="glass-container" id="capture-area">
+        
+        <!-- Header & Branding -->
+        <header class="form-header">
+            <div class="logo-wrapper">
+                <img src="logo.png" alt="شعار العيادة" class="shop-logo">
+            </div>
+            <h1 class="main-title">نموذج استقبال مريض الحجامة</h1>
+            <h2 class="hashtag-subtitle">#استثمر_في_صحتك</h2>
+            <h3 class="secondary-subtitle">نموذج تسجيل وتقييم المرضى</h3>
+        </header>
+
+        <form id="hijama-form">
+            
+            <!-- Section 1: Personal Information -->
+            <section class="form-section">
+                <div class="section-header">
+                    <i class="fa-solid fa-user-circle"></i>
+                    <h2>المعلومات الشخصية</h2>
+                </div>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="fullName">الاسم الكامل *</label>
+                        <input type="text" id="fullName" name="fullName" required placeholder="أدخل اسمك الكامل">
+                    </div>
+                    <div class="input-group">
+                        <label for="age">العمر *</label>
+                        <input type="number" id="age" name="age" required placeholder="العمر بالسنوات">
+                    </div>
+                </div>
+                
+                <div class="input-group inline-group">
+                    <label>الجنس: *</label>
+                    <div class="radio-options">
+                        <label class="custom-radio">
+                            <input type="radio" name="gender" value="ذكر" required>
+                            <span class="radio-mark"></span>
+                            ذكر
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="gender" value="أنثى" required>
+                            <span class="radio-mark"></span>
+                            أنثى
+                        </label>
+                    </div>
+                </div>
+
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="phone">رقم الهاتف *</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="رقم الهاتف للتواصل">
+                    </div>
+                    <div class="input-group">
+                        <label for="address">العنوان</label>
+                        <input type="text" id="address" name="address" placeholder="عنوان السكن">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Medical History -->
+            <section class="form-section">
+                <div class="section-header">
+                    <i class="fa-solid fa-file-medical"></i>
+                    <h2>التاريخ الطبي</h2>
+                </div>
+                <p class="section-desc">هل تعاني من أمراض مزمنة؟</p>
+                <div class="checkbox-grid">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="medicalHistory[]" value="السكري (نوع السكري)"> <span class="checkmark"></span> السكري (نوع السكري)
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="medicalHistory[]" value="ضغط الدم"> <span class="checkmark"></span> ضغط الدم
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="medicalHistory[]" value="أمراض القلب وشرايين"> <span class="checkmark"></span> أمراض القلب وشرايين
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="medicalHistory[]" value="فقر الدم / سيولة في الدم"> <span class="checkmark"></span> فقر الدم / سيولة في الدم
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="medicalHistory[]" value="أمراض جلدية"> <span class="checkmark"></span> أمراض جلدية
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="medicalHistory[]" value="أمراض مناعية"> <span class="checkmark"></span> أمراض مناعية
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="medicalHistory[]" value="مشاكل مفاصل"> <span class="checkmark"></span> مشاكل مفاصل
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="medicalHistory[]" value="مشاكل عصبية"> <span class="checkmark"></span> مشاكل عصبية
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="medicalHistory[]" value="عمليات جراحية"> <span class="checkmark"></span> عمليات جراحية
+                    </label>
+                    
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="medicalHistory[]" value="أمراض خبيثة / سرطان"> <span class="checkmark"></span> أمراض خبيثة / سرطان
+                    </label>
+                    
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="medicalHistory[]" value="تعاطي مخدرات"> <span class="checkmark"></span> تعاطي مخدرات
+                    </label>
+                    
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="medicalHistory[]" value="لا يوجد أمراض مما ذكرت"> <span class="checkmark"></span> لا يوجد أمراض مما ذكرت
+                    </label>
+                </div>
+                
+                <div class="input-group extra-mt">
+                    <label for="otherDiseases">أمراض خبيثة / سرطان (حدد النوع) أو أمراض أخرى:</label>
+                    <input type="text" id="otherDiseases" name="otherDiseases" placeholder="اذكرها هنا...">
+                </div>
+
+                <div class="input-group">
+                    <label for="otherProblems">اذكر مشاكل موجودة / أخرى:</label>
+                    <input type="text" id="otherProblems" name="otherProblems" placeholder="أي مشاكل صحية أخرى...">
+                </div>
+            </section>
+
+            <!-- Section 3: Medication -->
+            <section class="form-section">
+                <div class="section-header">
+                    <i class="fa-solid fa-pills"></i>
+                    <h2>الأدوية</h2>
+                </div>
+                <div class="input-group inline-group">
+                    <label>هل تتناول أدوية حالياً؟</label>
+                    <div class="radio-options">
+                        <label class="custom-radio">
+                            <input type="radio" name="takingMeds" value="نعم">
+                            <span class="radio-mark"></span> نعم
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="takingMeds" value="لا" checked>
+                            <span class="radio-mark"></span> لا
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="input-group" id="medsListWrapper">
+                    <label for="medsList">إذا نعم، اذكرها:</label>
+                    <input type="text" id="medsList" name="medsList" placeholder="أسماء الأدوية التي تتناولها">
+                </div>
+
+                <div class="input-group inline-group">
+                    <label>هل تتناول مميعات الدم؟</label>
+                    <div class="radio-options">
+                        <label class="custom-radio">
+                            <input type="radio" name="bloodThinners" value="نعم">
+                            <span class="radio-mark"></span> نعم
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="bloodThinners" value="لا" checked>
+                            <span class="radio-mark"></span> لا
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Cupping Contraindications -->
+            <section class="form-section">
+                <div class="section-header">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <h2>موانع الحجامة</h2>
+                </div>
+                <p class="section-desc">هل لديك من الحالات التالية؟</p>
+                <div class="checkbox-grid">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="contraindications[]" value="حمل / رضاعة"> <span class="checkmark"></span> حمل / رضاعة
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="contraindications[]" value="دوخة مستمرة"> <span class="checkmark"></span> دوخة مستمرة
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="contraindications[]" value="نزيف متكرر"> <span class="checkmark"></span> نزيف متكرر
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="contraindications[]" value="ضعف عام شديد"> <span class="checkmark"></span> ضعف عام شديد
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="contraindications[]" value="حساسية جلدية"> <span class="checkmark"></span> حساسية جلدية
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="contraindications[]" value="عمليات جراحية حديثة"> <span class="checkmark"></span> عمليات جراحية حديثة
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="contraindications[]" value="فقر دم / سرطان دم"> <span class="checkmark"></span> فقر دم / سرطان دم
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="contraindications[]" value="تطعيم أو لقاح في آخر 3 شهور"> <span class="checkmark"></span> تطعيم أو لقاح في آخر 3 شهور
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="contraindications[]" value="نزلة برد شديدة – إنفلونزا، حرارة؟"> <span class="checkmark"></span> نزلة برد شديدة – إنفلونزا، حرارة
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="contraindications[]" value="أمراض معدية مثل (HIV, Hepatitis B, Hepatitis C)"> <span class="checkmark"></span> أمراض معدية (HIV, الكبد الوبائي)
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="contraindications[]" value="عمل وشم آخر 3 شهور"> <span class="checkmark"></span> عمل وشم آخر 3 شهور
+                    </label>
+                </div>
+                <div class="input-group extra-mt">
+                    <label for="otherContraindications">أخرى:</label>
+                    <input type="text" id="otherContraindications" name="otherContraindications" placeholder="أي موانع أخرى...">
+                </div>
+            </section>
+
+            <!-- Section 5: Blood Tests -->
+            <section class="form-section">
+                <div class="section-header">
+                    <i class="fa-solid fa-vial"></i>
+                    <h2>الفحوصات الطبية</h2>
+                </div>
+                <div class="input-group inline-group">
+                    <label>هل عملت فحوصات دم خلال الستة أشهر الماضية؟</label>
+                    <div class="radio-options">
+                        <label class="custom-radio">
+                            <input type="radio" name="recentBloodTest" value="نعم">
+                            <span class="radio-mark"></span> نعم
+                        </label>
+                        <label class="custom-radio">
+                            <input type="radio" name="recentBloodTest" value="لا" checked>
+                            <span class="radio-mark"></span> لا
+                        </label>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="bloodTestIssues">هل وجد مشاكل أو نقص معين في الدم؟ (هيموجلوبين؟ حديد؟ نقص في الفيتامينات؟)</label>
+                    <textarea id="bloodTestIssues" name="bloodTestIssues" rows="2" placeholder="اكتب التفاصيل هنا..."></textarea>
+                </div>
+            </section>
+
+            <!-- Section 6: Reason for Cupping -->
+            <section class="form-section">
+                <div class="section-header">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                    <h2>سبب طلب الحجامة</h2>
+                </div>
+                <div class="input-group inline-group">
+                    <label>هل يوجد ألم؟ أين؟</label>
+                    <input type="text" id="painLocation" name="painLocation" placeholder="مكان الألم إن وجد...">
+                </div>
+                <div class="input-group inline-group">
+                    <label>هل سبق لك أن عملت حجامة؟ متى؟</label>
+                    <input type="text" id="previousCupping" name="previousCupping" placeholder="تاريخ آخر مرة...">
+                </div>
+            </section>
+
+            <!-- Section 7: Clinical Examination -->
+            <section class="form-section highlight-section">
+                <div class="section-header">
+                    <i class="fa-solid fa-stethoscope"></i>
+                    <h2>الفحص السريري (العيادة)</h2>
+                </div>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="temperature">الحرارة:</label>
+                        <input type="text" id="temperature" name="temperature" placeholder="درجة الحرارة">
+                    </div>
+                    <div class="input-group">
+                        <label for="bloodPressure">ضغط الدم والنبض:</label>
+                        <input type="text" id="bloodPressure" name="bloodPressure" placeholder="الضغط / النبض">
+                    </div>
+                    <div class="input-group">
+                        <label for="painLevel">الألم:</label>
+                        <input type="text" id="painLevel" name="painLevel" placeholder="مستوى الألم (1-10)">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" name="physicalExamCheck" value="تم"> 
+                        <span class="checkmark"></span> 
+                        فحص يدوي للمريض (للتأكد من عدم وجود ورم غير طبيعي أو أي مانع للحجامة)
+                    </label>
+                </div>
+            </section>
+
+            <!-- Section 8: Patient Declaration -->
+            <section class="form-section declaration-section">
+                <div class="section-header">
+                    <i class="fa-solid fa-file-signature"></i>
+                    <h2>إقرار المريض</h2>
+                </div>
+                <div class="declaration-box">
+                    <p>
+                        "أقر أنا الموقع أدناه أن جميع المعلومات المذكورة صحيحة، وأوافق على إجراء الحجامة بعد شرح الفوائد والمخاطر لي."
+                    </p>
+                </div>
+                <div class="input-grid mt-4">
+                    <div class="input-group">
+                        <label for="signatureName">الاسم الكامل (للتوقيع):</label>
+                        <input type="text" id="signatureName" name="signatureName" required placeholder="اسم المريض للتوقيع">
+                    </div>
+                    <div class="input-group">
+                        <label for="signatureDate">التاريخ:</label>
+                        <input type="date" id="signatureDate" name="signatureDate" required>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="signature-line"></div>
+                </div>
+            </section>
+
+
+        </form>
+    </div> <!-- End capture area -->
+    
+    <div class="actions-container">
+        <button type="submit" form="hijama-form" id="submitBtn" class="submit-btn ios-btn">
+            <span>تأكيد وإرسال <i class="fa-solid fa-paper-plane"></i></span>
+            <div class="spinner" style="display: none;"></div>
+        </button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.12/dist/sweetalert2.all.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
