@@ -2,10 +2,11 @@
 
 // Initialize EmailJS
 // [IMPORTANT] Replace these with your actual keys from EmailJS dashboard
-const EMAILJS_PUBLIC_KEY = "vNAW4MCkvSjEXUWXL"; 
+const EMAILJS_PUBLIC_KEY = "vNAW4MCkvSjEXUWXL";
 const EMAILJS_SERVICE_ID = "service_ps8zeax";
-const EMAILJS_TEMPLATE_ID = "template_ws7pyld";
+const EMAILJS_TEMPLATE_ID = "template_ukersdg";
 
+// Initialize EmailJS with the public key
 emailjs.init(EMAILJS_PUBLIC_KEY);
 
 document.addEventListener('DOMContentLoaded', () => {
