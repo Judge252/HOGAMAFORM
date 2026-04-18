@@ -50,15 +50,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Generate PDF as Base64 Data URI
-            const pdfDataUri = await html2pdf().set(opt).from(captureArea).outputPdf('datauristring');
+            // Save the PDF locally instead of passing it as a variable 
+            // to avoid the EmailJS 50Kb variable limit error.
+            await html2pdf().set(opt).from(captureArea).save();
 
-            // Send via EmailJS
+            // Send text data via EmailJS
             const templateParams = {
                 patient_name: patientName,
                 patient_phone: patientPhone,
                 message: `تم استلام نموذج جديد للمريض ${patientName}`,
-                content: pdfDataUri 
+                // content: pdfDataUri // Removed because EmailJS limits regular variables to 50Kb.
             };
 
             const result = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
