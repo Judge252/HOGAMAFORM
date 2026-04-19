@@ -418,14 +418,42 @@ input::placeholder, textarea::placeholder {
 @media print {
     body {
         background: white !important;
+        padding: 0 !important;
     }
     .glass-container {
         box-shadow: none !important;
         border: none !important;
-        padding: 0 !important;
+        padding: 20px !important;
+        max-width: 100% !important;
+        backdrop-filter: none !important;
+        background: white !important;
     }
     .actions-container {
         display: none !important;
+    }
+    
+    /* Page break rules for PDF generation */
+    .form-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        margin-bottom: 15px;
+    }
+    
+    .form-header {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        margin-bottom: 20px;
+    }
+    
+    .section-header {
+        page-break-after: avoid;
+        break-after: avoid;
+    }
+    
+    /* Ensure text doesn't get cut off */
+    input, textarea, select {
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
 }
 

@@ -1,24 +1,210 @@
 // app.js
 
-// Initialize EmailJS
-// [IMPORTANT] Replace these with your actual keys from EmailJS dashboard
-const EMAILJS_PUBLIC_KEY = "vNAW4MCkvSjEXUWXL";
-const EMAILJS_SERVICE_ID = "service_ps8zeax";
-const EMAILJS_TEMPLATE_ID = "template_ukersdg";
-
-// Initialize EmailJS with the public key
-emailjs.init(EMAILJS_PUBLIC_KEY);
-
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('hijama-form');
     const submitBtn = document.getElementById('submitBtn');
     const btnText = submitBtn.querySelector('span');
     const spinner = submitBtn.querySelector('.spinner');
 
+    const getCheckboxValues = (name) => {
+        return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(input => input.value);
+    };
+
+    const arabicFontUrl = 'fonts/ArabType.ttf';
+    let arabicFontBase64 = null;
+
+    const arrayBufferToBase64 = (buffer) => {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        const chunkSize = 0x8000;
+        for (let i = 0; i < bytes.length; i += chunkSize) {
+            binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+        }
+        return window.btoa(binary);
+    };
+
+    const loadArabicFont = async () => {
+        if (arabicFontBase64) {
+            return arabicFontBase64;
+        }
+
+        const response = await fetch(arabicFontUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to load Arabic font: ${response.statusText}`);
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        arabicFontBase64 = arrayBufferToBase64(arrayBuffer);
+        return arabicFontBase64;
+    };
+
+    const collectFormData = () => {
+        return {
+            patientName: document.getElementById('fullName').value.trim(),
+            patientPhone: document.getElementById('phone').value.trim(),
+            patientAddress: document.getElementById('address').value.trim() || 'غير محدد',
+            patientGender: document.querySelector('input[name="gender"]:checked')?.value || 'غير محدد',
+            patientAge: document.getElementById('age').value.trim() || 'غير محدد',
+            medicalHistory: getCheckboxValues('medicalHistory[]'),
+            contraindications: getCheckboxValues('contraindications[]'),
+            takingMeds: document.querySelector('input[name="takingMeds"]:checked')?.value || 'غير محدد',
+            medsList: document.getElementById('medsList').value.trim() || 'لا يوجد',
+            bloodThinners: document.querySelector('input[name="bloodThinners"]:checked')?.value || 'غير محدد',
+            otherDiseases: document.getElementById('otherDiseases').value.trim() || 'لا يوجد',
+            otherProblems: document.getElementById('otherProblems').value.trim() || 'لا يوجد',
+            otherContraindications: document.getElementById('otherContraindications').value.trim() || 'لا يوجد',
+            recentBloodTest: document.querySelector('input[name="recentBloodTest"]:checked')?.value || 'غير محدد',
+            bloodTestIssues: document.getElementById('bloodTestIssues').value.trim() || 'لا يوجد',
+            painLocation: document.getElementById('painLocation').value.trim() || 'لا يوجد',
+            previousCupping: document.getElementById('previousCupping').value.trim() || 'لا يوجد',
+            temperature: document.getElementById('temperature').value.trim() || 'لا يوجد',
+            bloodPressure: document.getElementById('bloodPressure').value.trim() || 'لا يوجد',
+            painLevel: document.getElementById('painLevel').value.trim() || 'لا يوجد',
+            physicalExamCheck: document.querySelector('input[name="physicalExamCheck"]')?.checked ? 'نعم' : 'لا',
+            signatureName: document.getElementById('signatureName').value.trim(),
+            signatureDate: document.getElementById('signatureDate').value || 'غير محدد'
+        };
+    };
+
+    const generatePDF = async (data) => {
+        const { jsPDF } = window.jspdf;
+        const fontBase64 = await loadArabicFont();
+        const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+        doc.addFileToVFS('ArabType.ttf', fontBase64);
+        doc.addFont('ArabType.ttf', 'ArabType', 'normal');
+        doc.setFont('ArabType', 'normal');
+        doc.setR2L(true);
+
+        const margin = 12;
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const maxTextWidth = pageWidth - margin * 2;
+        const lineHeight = 7;
+        let y = 18;
+
+        const addWrappedText = (text, options = {}) => {
+            doc.setFont('ArabType', 'normal');
+            const renderedText = text;
+            const split = doc.splitTextToSize(renderedText, maxTextWidth);
+            doc.text(split, pageWidth - margin, y, { align: 'right', ...options });
+            y += lineHeight * split.length;
+        };
+
+        const addLabelValue = (label, value) => {
+            addWrappedText(`${label}: ${value}`);
+        };
+
+        const newPageIfNeeded = () => {
+            if (y > pageHeight - 30) {
+                doc.addPage();
+                y = 18;
+            }
+        };
+
+        // Title
+        doc.setFontSize(18);
+        doc.setFont('ArabType', 'normal');
+        addWrappedText('نموذج استقبال مريض الحجامة');
+        y += 2;
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(0.4);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 10;
+
+        // Basic Info
+        doc.setFontSize(14);
+        addWrappedText('البيانات الأساسية');
+        y += 3;
+        doc.setFontSize(12);
+
+        addLabelValue('الاسم', data.patientName);
+        addLabelValue('العمر', data.patientAge);
+        addLabelValue('الجنس', data.patientGender);
+        addLabelValue('رقم الهاتف', data.patientPhone);
+        addLabelValue('العنوان', data.patientAddress);
+        y += 4;
+        newPageIfNeeded();
+
+        // Medical History
+        addWrappedText('التاريخ الطبي');
+        y += 3;
+        if (data.medicalHistory.length) {
+            data.medicalHistory.forEach(item => addWrappedText(`- ${item}`));
+        } else {
+            addWrappedText('لا توجد أمراض مدرجة');
+        }
+        addLabelValue('أمراض أخرى', data.otherDiseases);
+        addLabelValue('مشاكل صحية أخرى', data.otherProblems);
+        y += 4;
+        newPageIfNeeded();
+
+        // Medications
+        addWrappedText('الأدوية');
+        y += 3;
+        addLabelValue('هل يتناول أدوية؟', data.takingMeds);
+        addLabelValue('أسماء الأدوية', data.medsList);
+        addLabelValue('مميعات الدم', data.bloodThinners);
+        y += 4;
+        newPageIfNeeded();
+
+        // Contraindications
+        addWrappedText('موانع الحجامة');
+        y += 3;
+        if (data.contraindications.length) {
+            data.contraindications.forEach(item => addWrappedText(`- ${item}`));
+        } else {
+            addWrappedText('لا توجد موانع مسجلة');
+        }
+        addLabelValue('أخرى', data.otherContraindications);
+        y += 4;
+        newPageIfNeeded();
+
+        // Medical Tests
+        addWrappedText('الفحوصات الطبية');
+        y += 3;
+        addLabelValue('فحوصات دم خلال الستة أشهر الماضية', data.recentBloodTest);
+        addLabelValue('تفاصيل الفحوصات', data.bloodTestIssues);
+        y += 4;
+        newPageIfNeeded();
+
+        // Reason for Cupping
+        addWrappedText('سبب طلب الحجامة');
+        y += 3;
+        addLabelValue('الألم / مكانه', data.painLocation);
+        addLabelValue('السابق إجراء حجامة', data.previousCupping);
+        y += 4;
+        newPageIfNeeded();
+
+        // Clinical Exam
+        doc.setFont('ArabType', 'normal');
+        addWrappedText('الفحص السريري');
+        y += 3;
+        doc.setFont('ArabType', 'normal');
+        addLabelValue('الحرارة', data.temperature);
+        addLabelValue('ضغط الدم والنبض', data.bloodPressure);
+        addLabelValue('مستوى الألم', data.painLevel);
+        addLabelValue('فحص يدوي للمريض', data.physicalExamCheck);
+        y += 4;
+        newPageIfNeeded();
+
+        // Patient Declaration
+        doc.setFont('ArabType', 'normal');
+        addWrappedText('إقرار المريض');
+        y += 3;
+        doc.setFont('ArabType', 'normal');
+        addLabelValue('اسم الموقّع', data.signatureName);
+        addLabelValue('التاريخ', data.signatureDate);
+
+        // Never use datauristring for transport: jsPDF falls back to
+        // btoa(unescape(encodeURIComponent(...))) when btoa throws, which
+        // re-encodes binary as UTF-8 text and corrupts the PDF (garbled / þ).
+        const pdfArrayBuffer = doc.output('arraybuffer');
+        return arrayBufferToBase64(pdfArrayBuffer);
+    };
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        // Ensure form is valid before processing
+
         if (!form.checkValidity()) {
             Swal.fire({
                 icon: 'error',
@@ -30,41 +216,30 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Extract some basic info for the email message body
-        const patientName = document.getElementById('fullName').value;
-        const patientPhone = document.getElementById('phone').value;
+        const data = collectFormData();
 
-        // UI Loading State
         btnText.style.display = 'none';
         spinner.style.display = 'block';
         submitBtn.disabled = true;
 
         try {
-            // Setup html2pdf options
-            const captureArea = document.getElementById('capture-area');
-            const opt = {
-                margin:       [10, -5, 10, -5], // Minimal margins
-                filename:     `Hijama_Form_${patientName}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            const pdfBase64 = await generatePDF(data);
 
-            // Save the PDF locally instead of passing it as a variable 
-            // to avoid the EmailJS 50Kb variable limit error.
-            await html2pdf().set(opt).from(captureArea).save();
+            const response = await fetch('/submit-form', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    patient_name: data.patientName,
+                    patient_phone: data.patientPhone,
+                    pdf_base64: pdfBase64,
+                })
+            });
 
-            // Send text data via EmailJS
-            const templateParams = {
-                patient_name: patientName,
-                patient_phone: patientPhone,
-                message: `تم استلام نموذج جديد للمريض ${patientName}`,
-                // content: pdfDataUri // Removed because EmailJS limits regular variables to 50Kb.
-            };
+            const result = await response.json();
 
-            const result = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
-            
-            if (result.status === 200) {
+            if (result.status === 'success') {
                 Swal.fire({
                     icon: 'success',
                     title: 'تم الإرسال بنجاح!',
@@ -73,39 +248,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     confirmButtonColor: '#34c759'
                 }).then(() => {
                     form.reset();
-                    window.scrollTo(0,0);
+                    window.scrollTo(0, 0);
                 });
             } else {
-                throw new Error(JSON.stringify(result));
+                throw new Error(result.error || 'Unknown error');
             }
-
         } catch (error) {
             console.error('Submission Error:', error);
-            // Extracted error message details depending on error type structure 
-            let errorMsg = (error.text || error.message || (typeof error === 'object' ? JSON.stringify(error) : error));
             Swal.fire({
                 icon: 'error',
                 title: 'حدث خطأ في الإرسال',
-                html: `<p>تفاصيل الخطأ: <br/><strong dir="ltr">${errorMsg}</strong></p>`,
+                html: `<p>تفاصيل الخطأ: <br/><strong dir="ltr">${error.message || error}</strong></p>`,
                 confirmButtonText: 'إغلاق',
                 confirmButtonColor: '#ff3b30'
             });
         } finally {
-            // Restore UI State
             btnText.style.display = 'inline-flex';
             spinner.style.display = 'none';
             submitBtn.disabled = false;
         }
     });
 
-    // Optional: Dynamic logic for radio buttons expanding text inputs
-    // For example, if taking meds is "نعم", maybe auto-focus the medsList
     const medsRadios = document.querySelectorAll('input[name="takingMeds"]');
     const medsList = document.getElementById('medsList');
-    
+
     medsRadios.forEach(radio => {
         radio.addEventListener('change', (e) => {
-            if(e.target.value === 'نعم') {
+            if (e.target.value === 'نعم') {
                 medsList.focus();
             }
         });
