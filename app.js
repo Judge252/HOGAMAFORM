@@ -10,34 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(input => input.value);
     };
 
-    const arabicFontUrl = 'fonts/ArabType.ttf';
-    let arabicFontBase64 = null;
-
-    const arrayBufferToBase64 = (buffer) => {
-        let binary = '';
-        const bytes = new Uint8Array(buffer);
-        const chunkSize = 0x8000;
-        for (let i = 0; i < bytes.length; i += chunkSize) {
-            binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
-        }
-        return window.btoa(binary);
-    };
-
-    const loadArabicFont = async () => {
-        if (arabicFontBase64) {
-            return arabicFontBase64;
-        }
-
-        const response = await fetch(arabicFontUrl);
-        if (!response.ok) {
-            throw new Error(`Failed to load Arabic font: ${response.statusText}`);
-        }
-
-        const arrayBuffer = await response.arrayBuffer();
-        arabicFontBase64 = arrayBufferToBase64(arrayBuffer);
-        return arabicFontBase64;
-    };
-
     const collectFormData = () => {
         return {
             patientName: document.getElementById('fullName').value.trim(),
@@ -66,142 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
 
-    const generatePDF = async (data) => {
-        const { jsPDF } = window.jspdf;
-        const fontBase64 = await loadArabicFont();
-        const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-        doc.addFileToVFS('ArabType.ttf', fontBase64);
-        doc.addFont('ArabType.ttf', 'ArabType', 'normal');
-        doc.setFont('ArabType', 'normal');
-        doc.setR2L(true);
-
-        const margin = 12;
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const maxTextWidth = pageWidth - margin * 2;
-        const lineHeight = 7;
-        let y = 18;
-
-        const addWrappedText = (text, options = {}) => {
-            doc.setFont('ArabType', 'normal');
-            const renderedText = text;
-            const split = doc.splitTextToSize(renderedText, maxTextWidth);
-            doc.text(split, pageWidth - margin, y, { align: 'right', ...options });
-            y += lineHeight * split.length;
-        };
-
-        const addLabelValue = (label, value) => {
-            addWrappedText(`${label}: ${value}`);
-        };
-
-        const newPageIfNeeded = () => {
-            if (y > pageHeight - 30) {
-                doc.addPage();
-                y = 18;
-            }
-        };
-
-        // Title
-        doc.setFontSize(18);
-        doc.setFont('ArabType', 'normal');
-        addWrappedText('نموذج استقبال مريض الحجامة');
-        y += 2;
-        doc.setDrawColor(0, 0, 0);
-        doc.setLineWidth(0.4);
-        doc.line(margin, y, pageWidth - margin, y);
-        y += 10;
-
-        // Basic Info
-        doc.setFontSize(14);
-        addWrappedText('البيانات الأساسية');
-        y += 3;
-        doc.setFontSize(12);
-
-        addLabelValue('الاسم', data.patientName);
-        addLabelValue('العمر', data.patientAge);
-        addLabelValue('الجنس', data.patientGender);
-        addLabelValue('رقم الهاتف', data.patientPhone);
-        addLabelValue('العنوان', data.patientAddress);
-        y += 4;
-        newPageIfNeeded();
-
-        // Medical History
-        addWrappedText('التاريخ الطبي');
-        y += 3;
-        if (data.medicalHistory.length) {
-            data.medicalHistory.forEach(item => addWrappedText(`- ${item}`));
-        } else {
-            addWrappedText('لا توجد أمراض مدرجة');
-        }
-        addLabelValue('أمراض أخرى', data.otherDiseases);
-        addLabelValue('مشاكل صحية أخرى', data.otherProblems);
-        y += 4;
-        newPageIfNeeded();
-
-        // Medications
-        addWrappedText('الأدوية');
-        y += 3;
-        addLabelValue('هل يتناول أدوية؟', data.takingMeds);
-        addLabelValue('أسماء الأدوية', data.medsList);
-        addLabelValue('مميعات الدم', data.bloodThinners);
-        y += 4;
-        newPageIfNeeded();
-
-        // Contraindications
-        addWrappedText('موانع الحجامة');
-        y += 3;
-        if (data.contraindications.length) {
-            data.contraindications.forEach(item => addWrappedText(`- ${item}`));
-        } else {
-            addWrappedText('لا توجد موانع مسجلة');
-        }
-        addLabelValue('أخرى', data.otherContraindications);
-        y += 4;
-        newPageIfNeeded();
-
-        // Medical Tests
-        addWrappedText('الفحوصات الطبية');
-        y += 3;
-        addLabelValue('فحوصات دم خلال الستة أشهر الماضية', data.recentBloodTest);
-        addLabelValue('تفاصيل الفحوصات', data.bloodTestIssues);
-        y += 4;
-        newPageIfNeeded();
-
-        // Reason for Cupping
-        addWrappedText('سبب طلب الحجامة');
-        y += 3;
-        addLabelValue('الألم / مكانه', data.painLocation);
-        addLabelValue('السابق إجراء حجامة', data.previousCupping);
-        y += 4;
-        newPageIfNeeded();
-
-        // Clinical Exam
-        doc.setFont('ArabType', 'normal');
-        addWrappedText('الفحص السريري');
-        y += 3;
-        doc.setFont('ArabType', 'normal');
-        addLabelValue('الحرارة', data.temperature);
-        addLabelValue('ضغط الدم والنبض', data.bloodPressure);
-        addLabelValue('مستوى الألم', data.painLevel);
-        addLabelValue('فحص يدوي للمريض', data.physicalExamCheck);
-        y += 4;
-        newPageIfNeeded();
-
-        // Patient Declaration
-        doc.setFont('ArabType', 'normal');
-        addWrappedText('إقرار المريض');
-        y += 3;
-        doc.setFont('ArabType', 'normal');
-        addLabelValue('اسم الموقّع', data.signatureName);
-        addLabelValue('التاريخ', data.signatureDate);
-
-        // Never use datauristring for transport: jsPDF falls back to
-        // btoa(unescape(encodeURIComponent(...))) when btoa throws, which
-        // re-encodes binary as UTF-8 text and corrupts the PDF (garbled / þ).
-        const pdfArrayBuffer = doc.output('arraybuffer');
-        return arrayBufferToBase64(pdfArrayBuffer);
-    };
-
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -223,8 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
 
         try {
-            const pdfBase64 = await generatePDF(data);
-
             const response = await fetch('/submit-form', {
                 method: 'POST',
                 headers: {
@@ -233,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     patient_name: data.patientName,
                     patient_phone: data.patientPhone,
-                    pdf_base64: pdfBase64,
+                    form_data: data,
                 })
             });
 
