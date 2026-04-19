@@ -10,33 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(input => input.value);
     };
 
-    const arabicFontUrl = 'fonts/ArabType.ttf';
-    let arabicFontBase64 = null;
 
-    const arrayBufferToBase64 = (buffer) => {
-        let binary = '';
-        const bytes = new Uint8Array(buffer);
-        const chunkSize = 0x8000;
-        for (let i = 0; i < bytes.length; i += chunkSize) {
-            binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
-        }
-        return window.btoa(binary);
-    };
-
-    const loadArabicFont = async () => {
-        if (arabicFontBase64) {
-            return arabicFontBase64;
-        }
-
-        const response = await fetch(arabicFontUrl);
-        if (!response.ok) {
-            throw new Error(`Failed to load Arabic font: ${response.statusText}`);
-        }
-
-        const arrayBuffer = await response.arrayBuffer();
-        arabicFontBase64 = arrayBufferToBase64(arrayBuffer);
-        return arabicFontBase64;
-    };
 
     const collectFormData = () => {
         return {
@@ -66,29 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
 
-    const generatePDF = async (data) => {
-        const { jsPDF } = window.jspdf;
-        const fontBase64 = await loadArabicFont();
-        const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-        doc.addFileToVFS('ArabType.ttf', fontBase64);
-        doc.addFont('ArabType.ttf', 'ArabType', 'normal');
-        doc.setFont('ArabType', 'normal');
-        doc.setR2L(true);
 
-        const margin = 12;
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const maxTextWidth = pageWidth - margin * 2;
-        const lineHeight = 7;
-        let y = 18;
-
-        const addWrappedText = (text, options = {}) => {
-            doc.setFont('ArabType', 'normal');
-            const renderedText = text;
-            const split = doc.splitTextToSize(renderedText, maxTextWidth);
-            doc.text(split, pageWidth - margin, y, { align: 'right', ...options });
-            y += lineHeight * split.length;
-        };
 
         const addLabelValue = (label, value) => {
             addWrappedText(`${label}: ${value}`);
@@ -223,8 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
 
         try {
-            const pdfBase64 = await generatePDF(data);
-
+            // Send form data to backend for PDF generation
             const response = await fetch('/submit-form', {
                 method: 'POST',
                 headers: {
@@ -233,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     patient_name: data.patientName,
                     patient_phone: data.patientPhone,
-                    pdf_base64: pdfBase64,
+                    formData: data
                 })
             });
 
@@ -243,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 Swal.fire({
                     icon: 'success',
                     title: 'تم الإرسال بنجاح!',
-                    text: 'تم إنشاء ملف PDF وإرساله.',
+                    text: 'تم إنشاء ملف PDF وإرساله عبر البريد الإلكتروني.',
                     confirmButtonText: 'رائع',
                     confirmButtonColor: '#34c759'
                 }).then(() => {
