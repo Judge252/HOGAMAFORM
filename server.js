@@ -162,7 +162,25 @@ function renderHijamaHtml(formData) {
 }
 
 async function renderPdfBufferFromHtml(html) {
-    const browser = await puppeteer.launch();
+    let browser;
+    try {
+        browser = await puppeteer.launch({
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                // Railway / Docker often have small /dev/shm; avoids Chromium crashes under load
+                '--disable-dev-shm-usage',
+            ],
+        });
+    } catch (launchErr) {
+        const wrapped = new Error(
+            `Failed to launch Chromium for PDF: ${launchErr.message}`
+        );
+        wrapped.cause = launchErr;
+        throw wrapped;
+    }
+
     try {
         const page = await browser.newPage();
         await page.setContent(html, { waitUntil: 'networkidle0' });
@@ -172,7 +190,9 @@ async function renderPdfBufferFromHtml(html) {
         });
         return Buffer.from(pdfUint8);
     } finally {
-        await browser.close();
+        if (browser) {
+            await browser.close();
+        }
     }
 }
 
