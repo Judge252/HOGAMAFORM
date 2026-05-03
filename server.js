@@ -2,9 +2,15 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
+const dns = require('dns');
 const puppeteer = require('puppeteer');
 const app = express();
 const bodyParser = require('body-parser');
+
+// Prefer IPv4 when resolving SMTP hosts (avoids ENETUNREACH to Gmail IPv6 in some containers)
+if (typeof dns.setDefaultResultOrder === 'function') {
+    dns.setDefaultResultOrder('ipv4first');
+}
 
 // Middleware to parse JSON
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -12,13 +18,28 @@ app.use(bodyParser.json({ limit: '50mb' }));
 // Serve static files
 app.use(express.static(path.join(__dirname)));
 
-// Configure Nodemailer transport
+const gmailUser = process.env.GMAIL_USER || 'tclinic65@gmail.com';
+const gmailPass = process.env.GMAIL_APP_PASSWORD || 'cdtfkgpzmgnwyghr';
+
+if (!process.env.GMAIL_APP_PASSWORD) {
+    console.warn('[mail] GMAIL_APP_PASSWORD is not set; using bundled fallback. Set env vars on Railway.');
+}
+
+// Gmail SMTP with STARTTLS (587) — works more reliably than implicit TLS on 465 in containerized hosts
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
     auth: {
-        user: 'tclinic65@gmail.com',
-        pass: 'cdtfkgpzmgnwyghr',   // Your Gmail app password (spaces removed)
-    }
+        user: gmailUser,
+        pass: gmailPass,
+    },
+    tls: {
+        rejectUnauthorized: false,
+    },
+    connectionTimeout: 60000,
+    greetingTimeout: 30000,
+    socketTimeout: 60000,
 });
 
 function escapeHtml(value) {
@@ -220,8 +241,8 @@ app.post('/submit-form', (req, res) => {
             console.log('PDF saved:', pdfFilePath);
 
             const mailOptions = {
-                from: 'tclinic65@gmail.com',
-                to: 'tclinic65@gmail.com',
+                from: gmailUser,
+                to: process.env.MAIL_TO || gmailUser,
                 subject: `New Hijama Form Submission - ${patient_name}`,
                 text: `New form submitted for patient: ${patient_name}, Phone: ${patient_phone}`,
                 html: `
@@ -239,13 +260,19 @@ app.post('/submit-form', (req, res) => {
                 ],
             };
 
+            console.log('[mail] Sending submission email with PDF attachment…', {
+                to: mailOptions.to,
+                subject: mailOptions.subject,
+                attachmentBytes: buffer.length,
+            });
+
             transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
-                    console.error('Error sending email:', error);
+                    console.error('[mail] sendMail failed:', error.code || '', error.message, error);
                     return res.status(500).json({ status: 'error', error: `Email error: ${error.message}` });
                 }
 
-                console.log('Email sent successfully:', info.response);
+                console.log('[mail] Email sent:', info.messageId, info.response);
 
                 try {
                     fs.unlinkSync(pdfFilePath);
@@ -270,4 +297,10 @@ app.post('/submit-form', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    transporter
+        .verify()
+        .then(() => console.log('[mail] SMTP server is reachable (verify OK)'))
+        .catch((err) =>
+            console.warn('[mail] SMTP verify failed; sending may still work:', err.message)
+        );
 });
