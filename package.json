@@ -12,7 +12,7 @@
   "dependencies": {
     "body-parser": "^2.2.2",
     "express": "^5.2.1",
-    "nodemailer": "^8.0.5",
-    "puppeteer": "^24.0.0"
+    "puppeteer": "^24.0.0",
+    "resend": "^4.1.2"
   }
 }
