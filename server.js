@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const fs = require('fs');
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -28,10 +29,37 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+function getCairoFontFaceCss() {
+    const basePath = path.join(__dirname, 'node_modules', '@fontsource', 'cairo', 'files');
+    const regularPath = path.join(basePath, 'cairo-arabic-400-normal.woff2');
+    const boldPath = path.join(basePath, 'cairo-arabic-700-normal.woff2');
+
+    const regularBase64 = fs.readFileSync(regularPath).toString('base64');
+    const boldBase64 = fs.readFileSync(boldPath).toString('base64');
+
+    return `
+    @font-face {
+      font-family: 'CairoEmbedded';
+      src: url(data:font/woff2;base64,${regularBase64}) format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    @font-face {
+      font-family: 'CairoEmbedded';
+      src: url(data:font/woff2;base64,${boldBase64}) format('woff2');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+  `;
+}
+
 function renderPdfHtml(formData) {
     const data = formData || {};
     const medicalHistory = Array.isArray(data.medicalHistory) ? data.medicalHistory : [];
     const contraindications = Array.isArray(data.contraindications) ? data.contraindications : [];
+    const cairoFontCss = getCairoFontFaceCss();
 
     const row = (label, value) => `
       <tr>
@@ -51,10 +79,11 @@ function renderPdfHtml(formData) {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    ${cairoFontCss}
     @page { size: A4; margin: 14mm; }
     body {
       direction: rtl;
-      font-family: "Tahoma", "Arial", sans-serif;
+      font-family: "CairoEmbedded", "Arial", sans-serif;
       color: #111827;
       line-height: 1.6;
       font-size: 13px;
@@ -70,6 +99,12 @@ function renderPdfHtml(formData) {
     .value { width: 70%; }
     ul { margin: 6px 0; padding: 0 18px 0 0; }
     .muted { color: #6b7280; }
+    .signature {
+      margin-top: 18px;
+      padding-top: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -146,6 +181,8 @@ function renderPdfHtml(formData) {
       ${row('التاريخ', data.signatureDate)}
     </table>
   </div>
+
+  <div class="signature">توقيع المريض/ .....................................................</div>
 </body>
 </html>`;
 }
@@ -160,6 +197,7 @@ async function generatePdfBuffer(formData) {
         });
         const page = await browser.newPage();
         await page.setContent(html, { waitUntil: 'networkidle0' });
+        await page.evaluateHandle('document.fonts.ready');
         const pdf = await page.pdf({
             format: 'A4',
             printBackground: true,
