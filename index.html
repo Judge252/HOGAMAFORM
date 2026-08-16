@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0c0f1a">
+    <meta name="color-scheme" content="dark">
     <title>نموذج استقبال مريض الحجامة</title>
     <!-- Google Fonts for Typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 for beautiful popups -->
@@ -16,17 +20,35 @@
     
 </head>
 <body class="bg-mesh">
-    
-    <div class="glass-container" id="capture-area">
+
+    <a class="skip-link" href="#hijama-form">الانتقال مباشرة إلى النموذج</a>
+
+    <div class="site-bg" aria-hidden="true">
+        <span class="bg-orb bg-orb-1"></span>
+        <span class="bg-orb bg-orb-2"></span>
+        <span class="bg-orb bg-orb-3"></span>
+        <span class="bg-noise"></span>
+    </div>
+
+    <main class="glass-container" id="capture-area">
         
         <!-- Header & Branding -->
         <header class="form-header">
             <div class="logo-wrapper">
-                <img src="logo.png" alt="شعار العيادة" class="shop-logo">
+                <img src="logo.png" alt="شعار المركز الطبي" class="shop-logo">
             </div>
-            <h1 class="main-title">نموذج استقبال مريض الحجامة</h1>
-            <h2 class="hashtag-subtitle">#استثمر_في_صحتك</h2>
-            <h3 class="secondary-subtitle">نموذج تسجيل وتقييم المرضى</h3>
+            <div class="header-copy">
+                <p class="brand-kicker">
+                    <i class="fa-solid fa-shield-heart" aria-hidden="true"></i>
+                    رعاية طبية متخصصة
+                </p>
+                <p class="hashtag-subtitle">#استثمر في صحتك</p>
+                <h1 class="main-title">مركز طبي متخصص بمشاكل المفاصل والعضلات ومشاكل الأعصاب والحركة</h1>
+                <div class="form-title-group">
+                    <h2 class="form-title">نموذج استقبال مريض الحجامة</h2>
+                    <p class="secondary-subtitle">يرجى تعبئة البيانات التالية بدقة قبل إرسال النموذج</p>
+                </div>
+            </div>
         </header>
 
         <form id="hijama-form">
@@ -322,7 +344,7 @@
 
 
         </form>
-    </div> <!-- End capture area -->
+    </main> <!-- End form content -->
     
     <div class="actions-container">
         <button type="submit" form="hijama-form" id="submitBtn" class="submit-btn ios-btn">
