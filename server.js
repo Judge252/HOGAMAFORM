@@ -248,65 +248,6 @@ function renderPdfHtml(formData) {
         .muted {
             color: #6b7280;
         }
-
-        .disclaimer {
-            margin-top: 12px;
-            padding: 8px;
-            border: 1px solid #eef2ff;
-            border-radius: 6px;
-            background: #ffffff;
-            color: #111827;
-            font-size: 13px;
-        }
-
-        .signatures {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 16px;
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-
-        .signature-card {
-            direction: rtl;
-            min-width: 0;
-            width: 300px;
-            padding: 13px 14px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            background: #ffffff;
-        }
-
-        .signature-card-title {
-            margin: 0 0 12px;
-            color: #0f766e;
-            font-size: 15px;
-            font-weight: 700;
-        }
-
-        .signature-field {
-            display: flex;
-            align-items: flex-end;
-            gap: 7px;
-            min-width: 0;
-            margin-top: 13px;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .signature-field-label {
-            flex: 0 0 auto;
-        }
-
-        .signature-line {
-            flex: 1 1 auto;
-            min-width: 90px;
-            min-height: 25px;
-            padding: 0 4px 3px;
-            border-bottom: 1px solid #374151;
-            font-weight: 400;
-            overflow-wrap: anywhere;
-        }
     </style>
 </head>
 
@@ -416,47 +357,12 @@ function renderPdfHtml(formData) {
     </div>
 
     <div class="section">
-        <h2>إقرار المريض</h2>
-
+        <h2>بيانات المعالج</h2>
         <table>
             ${row('اسم المعالج', data.therapistName)}
-            ${row('التاريخ', data.fillDate)}
+            ${row('تاريخ التعبئة', data.fillDate)}
         </table>
     </div>
-
-    <div class="disclaimer">
-        أقر أنا الموقع أدناه أن جميع المعلومات المذكورة صحيحة،
-        وأوافق على إجراء الحجامة بعد شرح الفوائد والمخاطر لي.
-    </div>
-
-    <section
-        class="signatures"
-        aria-label="التوقيعات"
-    >
-        <div class="signature-card therapist-signature">
-            <div class="signature-card-title">
-                بيانات المعالج
-            </div>
-
-            <div class="signature-field">
-                <span class="signature-field-label">
-                    اسم المعالج:
-                </span>
-
-                <span class="signature-line">
-                    ${escapeHtml(data.therapistName)}
-                </span>
-            </div>
-
-            <div class="signature-field">
-                <span class="signature-field-label">
-                    توقيع المعالج:
-                </span>
-
-                <span class="signature-line"></span>
-            </div>
-        </div>
-    </section>
 </body>
 </html>`;
 }

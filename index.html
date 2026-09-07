@@ -64,7 +64,7 @@
                 <div class="input-grid">
                     <div class="input-group">
                         <label for="fullName">الاسم الكامل *</label>
-                        <input type="text" id="fullName" name="fullName" required placeholder="أدخل اسمك الكامل">
+                        <input type="text" id="fullName" name="fullName" required placeholder="أدخل اسم المريض الكامل">
                     </div>
                     <div class="input-group">
                         <label for="nationalId">رقم الهوية *</label>
@@ -322,24 +322,19 @@
                 </div>
             </section>
 
-            <!-- Section 8: Patient Declaration -->
-            <section class="form-section declaration-section">
+            <!-- Section 8: Therapist Information -->
+            <section class="form-section">
                 <div class="section-header">
-                    <i class="fa-solid fa-file-signature"></i>
-                    <h2>إقرار المريض</h2>
+                    <i class="fa-solid fa-user-doctor"></i>
+                    <h2>بيانات المعالج وتاريخ التعبئة</h2>
                 </div>
-                <div class="declaration-box">
-                    <p>
-                        "أقر أنا الموقع أدناه أن جميع المعلومات المذكورة صحيحة، وأوافق على إجراء الحجامة بعد شرح الفوائد والمخاطر لي."
-                    </p>
-                </div>
-                <div class="input-grid mt-4">
+                <div class="input-grid">
                     <div class="input-group">
-                        <label for="therapistName">اسم المعالج</label>
-                        <input type="text" id="therapistName" name="therapistName" required placeholder="اسم المعالج">
+                        <label for="therapistName">اسم المعالج *</label>
+                        <input type="text" id="therapistName" name="therapistName" required placeholder="أدخل اسم المعالج">
                     </div>
                     <div class="input-group">
-                        <label for="fillDate">التاريخ</label>
+                        <label for="fillDate">تاريخ التعبئة *</label>
                         <input type="date" id="fillDate" name="fillDate" required>
                     </div>
                 </div>
