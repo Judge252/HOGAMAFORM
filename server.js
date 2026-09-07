@@ -340,6 +340,7 @@ function renderPdfHtml(formData) {
 
         <table>
             ${row('الاسم', data.patientName)}
+            ${row('رقم الهوية', data.patientId)}
             ${row('العمر', data.patientAge)}
             ${row('الجنس', data.patientGender)}
             ${row('رقم الهاتف', data.patientPhone)}

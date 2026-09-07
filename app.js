@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const collectFormData = () => {
         return {
             patientName: document.getElementById('fullName').value.trim(),
+            patientId: document.getElementById('nationalId').value.trim(),
             patientPhone: document.getElementById('phone').value.trim(),
             patientAddress: document.getElementById('address').value.trim() || 'غير محدد',
             patientGender: document.querySelector('input[name="gender"]:checked')?.value || 'غير محدد',
