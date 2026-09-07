@@ -357,7 +357,7 @@ function renderPdfHtml(formData) {
     </div>
 
     <div class="section">
-        <h2>بيانات المعالج</h2>
+        <h2>بيانات المعالج وتاريخ التعبئة</h2>
         <table>
             ${row('اسم المعالج', data.therapistName)}
             ${row('تاريخ التعبئة', data.fillDate)}

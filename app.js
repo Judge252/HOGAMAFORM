@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const collectFormData = () => {
         return {
             patientName: document.getElementById('fullName').value.trim(),
-            patientId: document.getElementById('nationalId').value.trim(),
+            patientId: document.getElementById('nationalId') ? document.getElementById('nationalId').value.trim() : 'غير محدد',
             patientPhone: document.getElementById('phone').value.trim(),
             patientAddress: document.getElementById('address').value.trim() || 'غير محدد',
             patientGender: document.querySelector('input[name="gender"]:checked')?.value || 'غير محدد',
@@ -34,8 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
             bloodPressure: document.getElementById('bloodPressure').value.trim() || 'لا يوجد',
             painLevel: document.getElementById('painLevel').value.trim() || 'لا يوجد',
             physicalExamCheck: document.querySelector('input[name="physicalExamCheck"]')?.checked ? 'نعم' : 'لا',
-            therapistName: document.getElementById('therapistName').value.trim(),
-            fillDate: document.getElementById('fillDate').value || 'غير محدد'
+            therapistName: document.getElementById('therapistName') ? document.getElementById('therapistName').value.trim() : 'غير محدد',
+            fillDate: document.getElementById('fillDate') ? (document.getElementById('fillDate').value || 'غير محدد') : 'غير محدد'
         };
     };
 
