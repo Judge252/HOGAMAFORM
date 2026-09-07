@@ -33,8 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
             bloodPressure: document.getElementById('bloodPressure').value.trim() || 'لا يوجد',
             painLevel: document.getElementById('painLevel').value.trim() || 'لا يوجد',
             physicalExamCheck: document.querySelector('input[name="physicalExamCheck"]')?.checked ? 'نعم' : 'لا',
-            signatureName: document.getElementById('signatureName').value.trim(),
-            signatureDate: document.getElementById('signatureDate').value || 'غير محدد'
+            therapistName: document.getElementById('therapistName').value.trim(),
+            fillDate: document.getElementById('fillDate').value || 'غير محدد'
         };
     };
 

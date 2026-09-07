@@ -72,7 +72,7 @@ function getCairoFontFaceCss() {
 
 function getLogoDataUrl() {
     try {
-        const logoPath = path.join(__dirname, 'logo.png');
+        const logoPath = path.join(__dirname, 'logo_pdf.png');
         const logoBase64 = fs.readFileSync(logoPath).toString('base64');
 
         return `data:image/png;base64,${logoBase64}`;
@@ -260,11 +260,8 @@ function renderPdfHtml(formData) {
         }
 
         .signatures {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            grid-template-areas: "therapist patient";
-            direction: ltr;
-            gap: 16px;
+            display: flex;
+            justify-content: flex-end;
             margin-top: 16px;
             break-inside: avoid;
             page-break-inside: avoid;
@@ -273,18 +270,11 @@ function renderPdfHtml(formData) {
         .signature-card {
             direction: rtl;
             min-width: 0;
+            width: 300px;
             padding: 13px 14px 14px;
             border: 1px solid #d1d5db;
             border-radius: 8px;
             background: #ffffff;
-        }
-
-        .patient-signature {
-            grid-area: patient;
-        }
-
-        .therapist-signature {
-            grid-area: therapist;
         }
 
         .signature-card-title {
@@ -428,8 +418,8 @@ function renderPdfHtml(formData) {
         <h2>إقرار المريض</h2>
 
         <table>
-            ${row('اسم الموقّع', data.signatureName)}
-            ${row('التاريخ', data.signatureDate)}
+            ${row('اسم المعالج', data.therapistName)}
+            ${row('التاريخ', data.fillDate)}
         </table>
     </div>
 
@@ -442,30 +432,6 @@ function renderPdfHtml(formData) {
         class="signatures"
         aria-label="التوقيعات"
     >
-        <div class="signature-card patient-signature">
-            <div class="signature-card-title">
-                بيانات المريض
-            </div>
-
-            <div class="signature-field">
-                <span class="signature-field-label">
-                    اسم المريض:
-                </span>
-
-                <span class="signature-line">
-                    ${escapeHtml(data.signatureName)}
-                </span>
-            </div>
-
-            <div class="signature-field">
-                <span class="signature-field-label">
-                    توقيع المريض:
-                </span>
-
-                <span class="signature-line"></span>
-            </div>
-        </div>
-
         <div class="signature-card therapist-signature">
             <div class="signature-card-title">
                 بيانات المعالج
@@ -476,7 +442,9 @@ function renderPdfHtml(formData) {
                     اسم المعالج:
                 </span>
 
-                <span class="signature-line"></span>
+                <span class="signature-line">
+                    ${escapeHtml(data.therapistName)}
+                </span>
             </div>
 
             <div class="signature-field">
